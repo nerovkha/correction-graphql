@@ -98,17 +98,45 @@ let books = [
 */
 
 const typeDefs = `
+  type Book {
+    title: String!
+    author: String!
+    published: Int!
+    genres: [String!]!
+  }
+
+  type Author {
+    name: String!
+    born: Int
+    bookCount: Int!
+  }
+
   type Query {
-    dummy: Int
+    bookCount: Int!
+    authorCount: Int!
+    allBooks(author: String): [Book!]!
+    allAuthors: [Author!]!
   }
 `
-
 const resolvers = {
   Query: {
-    dummy: () => 0,
+    bookCount: () => books.length,
+    authorCount: () => authors.length,
+   allBooks: (root, args) => {
+  if (!args.author) {
+    return books
+  }
+
+  return books.filter((book) => book.author === args.author)
+},
+    allAuthors: () => authors,
+  },
+
+  Author: {
+    bookCount: (root) =>
+      books.filter((book) => book.author === root.name).length,
   },
 }
-
 const server = new ApolloServer({
   typeDefs,
   resolvers,
